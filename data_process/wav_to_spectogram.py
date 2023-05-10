@@ -7,6 +7,9 @@ from pydub import AudioSegment # to convert mp3
 import glob
 import os
 
+import torch
+import torchaudio
+
 
 russian_path = "data/russian_data"
 temp_path = "temp"
