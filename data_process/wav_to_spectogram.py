@@ -19,7 +19,7 @@ model = bundle.get_model().to(device)
 
 i = 0
 
-female_folder = glob.glob(os.path.join(russian_path, 'female_rusit'))[0]
+female_folder = glob.glob(os.path.join(russian_path, 'female_russian'))[0]
 wav_files = glob.glob(os.path.join(female_folder, '*.mp3'))
 for wav_file in wav_files:
   i += 1
@@ -37,7 +37,7 @@ for wav_file in wav_files:
   plt.xlabel('Time [sec]')
   plt.savefig(output_path+"/W/"+str(i)+'.png')
 
-male_folder = glob.glob(os.path.join(russian_path, 'male_rusit'))[0]
+male_folder = glob.glob(os.path.join(russian_path, 'male_russian'))[0]
 wav_files = glob.glob(os.path.join(male_folder, '*.mp3'))
 for wav_file in wav_files:
   i += 1

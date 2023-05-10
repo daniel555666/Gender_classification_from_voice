@@ -22,7 +22,7 @@ model = bundle.get_model().to(device)
 
 i = 0
 
-female_folder = glob.glob(os.path.join(russian_path, 'female_rusit'))[0]
+female_folder = glob.glob(os.path.join(russian_path, 'female_russian'))[0]
 wav_files = glob.glob(os.path.join(female_folder, '*.mp3'))
 for wav_file in wav_files:
   i += 1
@@ -40,7 +40,7 @@ for wav_file in wav_files:
       out_file = open(output_path+"/M/"+str(i)+'.json', "w")
       json.dump(emission.tolist(), out_file)
 
-male_folder = glob.glob(os.path.join(russian_path, 'male_rusit'))[0]
+male_folder = glob.glob(os.path.join(russian_path, 'male_russian'))[0]
 wav_files = glob.glob(os.path.join(male_folder, '*.mp3'))
 for wav_file in wav_files:
   i += 1
