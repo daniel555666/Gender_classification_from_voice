@@ -53,6 +53,7 @@ for wav_file in wav_files:
   sample_rate, samples = wavfile.read(temp_path+"/temp.wav")
   frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate)
 
+  plt.ylim([0, 8000])  # set y-axis limits to show only relevant frequencies
   plt.pcolormesh(times, frequencies, spectrogram)
   plt.ylabel('Frequency [Hz]')
   plt.xlabel('Time [sec]')
