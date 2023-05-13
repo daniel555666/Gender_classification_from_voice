@@ -17,12 +17,16 @@ output_path = "data/json_russian_data"
 
 torch.random.manual_seed(0)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("device", device)
 bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
 model = bundle.get_model().to(device)
 
 i = 0
 
+
 female_folder = glob.glob(os.path.join(russian_path, 'female_russian'))[0]
+
+print(female_folder)
 wav_files = glob.glob(os.path.join(female_folder, '*.mp3'))
 for wav_file in wav_files:
   i += 1

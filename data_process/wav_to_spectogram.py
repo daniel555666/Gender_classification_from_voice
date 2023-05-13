@@ -13,7 +13,7 @@ import torchaudio
 
 russian_path = "data/russian_data"
 temp_path = "temp"
-output_path = "data/json_russian_data"
+output_path = "data/spectogram_russian_data"
 
 torch.random.manual_seed(0)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -57,4 +57,5 @@ for wav_file in wav_files:
   plt.pcolormesh(times, frequencies, spectrogram)
   plt.ylabel('Frequency [Hz]')
   plt.xlabel('Time [sec]')
+  plt.ylim([0, 8000])  # set y-axis limits to show only relevant frequencies
   plt.savefig(output_path+"/M/"+str(i)+'.png')
