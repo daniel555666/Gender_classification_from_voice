@@ -17,6 +17,7 @@ output_path = "data/spectogram_russian_data"
 
 torch.random.manual_seed(0)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("device", device)
 bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
 model = bundle.get_model().to(device)
 
@@ -30,11 +31,12 @@ for wav_file in wav_files:
     # break
   print("proccessing..", wav_file, i)
   sound = AudioSegment.from_mp3(wav_file)
-  sound.export(temp_path+"/temp.wav", format="wav")
+  sound.export(temp_path+"/temp_wav_to_spectogram.wav", format="wav")
 
-  sample_rate, samples = wavfile.read(temp_path+"/temp.wav")
+  sample_rate, samples = wavfile.read(temp_path+"/temp_wav_to_spectogram.wav")
   frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate)
 
+  plt.ylim([0, 4000])  # set y-axis limits to show only relevant frequencies
   plt.pcolormesh(times, frequencies, spectrogram)
   plt.ylabel('Frequency [Hz]')
   plt.xlabel('Time [sec]')
@@ -48,14 +50,13 @@ for wav_file in wav_files:
     # break
   print("proccessing..", wav_file, i)
   sound = AudioSegment.from_mp3(wav_file)
-  sound.export(temp_path+"/temp.wav", format="wav")
+  sound.export(temp_path+"/temp_wav_to_spectogram.wav", format="wav")
 
-  sample_rate, samples = wavfile.read(temp_path+"/temp.wav")
+  sample_rate, samples = wavfile.read(temp_path+"/temp_wav_to_spectogram.wav")
   frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate)
 
-  plt.ylim([0, 8000])  # set y-axis limits to show only relevant frequencies
+  plt.ylim([0, 4000])  # set y-axis limits to show only relevant frequencies
   plt.pcolormesh(times, frequencies, spectrogram)
   plt.ylabel('Frequency [Hz]')
   plt.xlabel('Time [sec]')
-  plt.ylim([0, 8000])  # set y-axis limits to show only relevant frequencies
   plt.savefig(output_path+"/M/"+str(i)+'.png')
