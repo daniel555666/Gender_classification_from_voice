@@ -18,7 +18,7 @@ if __name__ == "__main__":
     exit(1)
   language_path = "data/"+arg1+"_data"
   temp_path = "temp"
-  output_path = "data/json_"+arg1+"_data"
+  output_path = "data/spectogram_"+arg1+"_data"
   if not os.path.exists(output_path):
     os.makedirs(output_path)
   if not os.path.exists(output_path+"/W"):
@@ -41,9 +41,9 @@ if __name__ == "__main__":
       # break
     print("proccessing..", wav_file, i)
     sound = AudioSegment.from_mp3(wav_file)
-    sound.export(temp_path+"/temp_wav_to_spectogram.wav", format="wav")
+    sound.export(temp_path+"/"+arg1+"_temp_wav_to_spectogram.wav", format="wav")
 
-    sample_rate, samples = wavfile.read(temp_path+"/temp_wav_to_spectogram.wav")
+    sample_rate, samples = wavfile.read(temp_path+"/"+arg1+"_temp_wav_to_spectogram.wav")
     frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate)
 
     plt.ylim([0, 4000])  # set y-axis limits to show only relevant frequencies
@@ -60,9 +60,9 @@ if __name__ == "__main__":
       # break
     print("proccessing..", wav_file, i)
     sound = AudioSegment.from_mp3(wav_file)
-    sound.export(temp_path+"/temp_wav_to_spectogram.wav", format="wav")
+    sound.export(temp_path+"/"+arg1+"_temp_wav_to_spectogram.wav", format="wav")
 
-    sample_rate, samples = wavfile.read(temp_path+"/temp_wav_to_spectogram.wav")
+    sample_rate, samples = wavfile.read(temp_path+"/"+arg1+"_temp_wav_to_spectogram.wav")
     frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate)
 
     plt.ylim([0, 4000])  # set y-axis limits to show only relevant frequencies

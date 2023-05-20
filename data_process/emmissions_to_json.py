@@ -45,9 +45,9 @@ if __name__ == "__main__":
       #   break
       print("proccessing..", wav_file, i)
       sound = AudioSegment.from_mp3(wav_file)
-      sound.export(temp_path+"/temp_emmision_to_json.wav", format="wav")
+      sound.export(temp_path+"/"+arg1+"_temp_emmision_to_json.wav", format="wav")
       
-      waveform, sample_rate = torchaudio.load(temp_path+"/temp_emmision_to_json.wav")
+      waveform, sample_rate = torchaudio.load(temp_path+"/"+arg1+"_temp_emmision_to_json.wav")
       waveform = waveform.to(device)
 
       with torch.inference_mode():
@@ -63,9 +63,9 @@ if __name__ == "__main__":
       #   break
       print("proccessing..", wav_file, i)
       sound = AudioSegment.from_mp3(wav_file)
-      sound.export(temp_path+"/temp_emmision_to_json.wav", format="wav")
+      sound.export(temp_path+"/"+arg1+"_temp_emmision_to_json.wav", format="wav")
 
-      waveform, sample_rate = torchaudio.load(temp_path+"/temp_emmision_to_json.wav")
+      waveform, sample_rate = torchaudio.load(temp_path+"/"+arg1+"_temp_emmision_to_json.wav")
       waveform = waveform.to(device)
 
       with torch.inference_mode():
