@@ -13,7 +13,7 @@ import sys
 
 if __name__ == "__main__":
   arg1 = sys.argv[1]
-  if arg1 not in ['russian', 'arabic', 'english', 'french']:
+  if arg1 not in ['russian', 'arabic', 'english', 'french', 'spanish']:
     print("bad language")
     exit(1)
   language_path = "data/"+arg1+"_data"
@@ -21,7 +21,10 @@ if __name__ == "__main__":
   output_path = "data/json_"+arg1+"_data"
   if not os.path.exists(output_path):
     os.makedirs(output_path)
-
+  if not os.path.exists(output_path+"/W"):
+    os.makedirs(output_path+"/W")
+  if not os.path.exists(output_path+"/M"):
+    os.makedirs(output_path+"/M")
   torch.random.manual_seed(0)
   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
   print("device", device)
