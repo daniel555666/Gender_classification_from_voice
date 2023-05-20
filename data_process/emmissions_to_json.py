@@ -18,7 +18,7 @@ if __name__ == "__main__":
       # for lanaugage in ['russian', 'arabic', 'english', 'french', 'spanish']:
          print("processing language:", language)
          sys.argv[1] = language
-         os.system("python emmissions_to_json.py "+language)
+         os.system("python3 emmissions_to_json.py "+language)
       exit(0)
    all_languages = ['russian', 'arabic', 'english', 'french', 'spanish']
    if arg1 not in all_languages:
