@@ -64,7 +64,7 @@ if __name__ == "__main__":
          features, _ = model.extract_features(waveform)
          out_file = open(output_path+"/W/"+str(i)+'.json', "w")
          # json.dump(emission.tolist(), out_file)
-         json.dump(features.tolist(), out_file)
+         json.dump(features, out_file)
 
 
    male_folder = glob.glob(os.path.join(language_path, "male_"+arg1))[0]
@@ -85,4 +85,4 @@ if __name__ == "__main__":
          features, _ = model.extract_features(waveform)
          out_file = open(output_path+"/M/"+str(i)+'.json', "w")
          # json.dump(emission.tolist(), out_file)
-         json.dump(features.tolist(), out_file)
+         json.dump(features, out_file)
