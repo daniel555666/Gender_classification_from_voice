@@ -26,7 +26,8 @@ if __name__ == "__main__":
       exit(1)
    language_path = "data/"+arg1+"_data"
    temp_path = "temp"
-   output_path = "data/json_"+arg1+"_data"
+   output_path = "data/features_attempt_json_"+arg1+"_data"
+   # output_path = "data/json_"+arg1+"_data"
    if not os.path.exists(output_path):
       os.makedirs(output_path)
    if not os.path.exists(output_path+"/W"):
