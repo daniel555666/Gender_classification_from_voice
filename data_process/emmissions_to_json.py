@@ -59,9 +59,12 @@ if __name__ == "__main__":
       waveform = waveform.to(device)
 
       with torch.inference_mode():
-         emission, _ = model(waveform)
+         # emission, _ = model(waveform)
+         features, _ = model.extract_features(waveform)
          out_file = open(output_path+"/W/"+str(i)+'.json', "w")
-         json.dump(emission.tolist(), out_file)
+         # json.dump(emission.tolist(), out_file)
+         json.dump(features.tolist(), out_file)
+
 
    male_folder = glob.glob(os.path.join(language_path, "male_"+arg1))[0]
    wav_files = glob.glob(os.path.join(male_folder, '*.mp3'))
@@ -77,6 +80,8 @@ if __name__ == "__main__":
       waveform = waveform.to(device)
 
       with torch.inference_mode():
-         emission, _ = model(waveform)
+         # emission, _ = model(waveform)
+         features, _ = model.extract_features(waveform)
          out_file = open(output_path+"/M/"+str(i)+'.json', "w")
-         json.dump(emission.tolist(), out_file)
+         # json.dump(emission.tolist(), out_file)
+         json.dump(features.tolist(), out_file)
