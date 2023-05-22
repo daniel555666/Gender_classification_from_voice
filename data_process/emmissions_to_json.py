@@ -13,20 +13,19 @@ import os
 import sys
 if __name__ == "__main__":
    arg1 = sys.argv[1]
+   all_languages = ['russian', 'arabic', 'english', 'french', 'spanish']
    if arg1 == "all":
-      for language in ['arabic', 'english', 'french', 'spanish']:
-      # for lanaugage in ['russian', 'arabic', 'english', 'french', 'spanish']:
+      for language in all_languages:
          print("processing language:", language)
          sys.argv[1] = language
          os.system("python3 data_process/emmissions_to_json.py "+language)
       exit(0)
-   all_languages = ['russian', 'arabic', 'english', 'french', 'spanish']
    if arg1 not in all_languages:
       print("bad language")
       exit(1)
    language_path = "data/"+arg1+"_data"
    temp_path = "temp"
-   output_path = "data/features_attempt_json_"+arg1+"_data"
+   output_path = "data/emmission_json_"+arg1+"_data"
    # output_path = "data/json_"+arg1+"_data"
    if not os.path.exists(output_path):
       os.makedirs(output_path)
@@ -42,7 +41,6 @@ if __name__ == "__main__":
    model = bundle.get_model().to(device)
 
    i = 0
-
 
    female_folder = glob.glob(os.path.join(language_path, "female_"+arg1))[0]
 
@@ -60,11 +58,11 @@ if __name__ == "__main__":
       waveform = waveform.to(device)
 
       with torch.inference_mode():
-         # emission, _ = model(waveform)
-         features, _ = model.extract_features(waveform)
+         emission, _ = model(waveform)
+         # features, _ = model.extract_features(waveform)
          out_file = open(output_path+"/W/"+str(i)+'.json', "w")
-         # json.dump(emission.tolist(), out_file)
-         json.dump([element.tolist() for element in features], out_file)
+         json.dump(emission.tolist(), out_file)
+         # json.dump([element.tolist() for element in features], out_file)
 
 
    male_folder = glob.glob(os.path.join(language_path, "male_"+arg1))[0]
@@ -81,8 +79,8 @@ if __name__ == "__main__":
       waveform = waveform.to(device)
 
       with torch.inference_mode():
-         # emission, _ = model(waveform)
-         features, _ = model.extract_features(waveform)
+         emission, _ = model(waveform)
+         # features, _ = model.extract_features(waveform)
          out_file = open(output_path+"/M/"+str(i)+'.json', "w")
-         # json.dump(emission.tolist(), out_file)
-         json.dump([element.tolist() for element in features], out_file)
+         json.dump(emission.tolist(), out_file)
+         # json.dump([element.tolist() for element in features], out_file)

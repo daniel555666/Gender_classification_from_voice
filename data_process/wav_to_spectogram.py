@@ -13,14 +13,13 @@ import sys
 
 if __name__ == "__main__":
   arg1 = sys.argv[1]
+  all_languages = ['russian', 'arabic', 'english', 'french', 'spanish']
   if arg1 == "all":
-    for language in ['arabic', 'english', 'french', 'spanish']:
-    # for lanaugage in ['russian', 'arabic', 'english', 'french', 'spanish']:
+    for language in all_languages:
       print("processing language:", language)
       sys.argv[1] = language
       os.system("python3 data_process/wav_to_spectogram.py "+language)
     exit(0)
-  all_languages = ['russian', 'arabic', 'english', 'french', 'spanish']
   if arg1 not in all_languages:
     print("bad language")
     exit(1)
