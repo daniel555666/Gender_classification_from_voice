@@ -1,61 +1,77 @@
-#@title Default title text
-import matplotlib.pyplot as plt
-from scipy import signal
-from scipy.io import wavfile
-from pydub import AudioSegment # to convert mp3
-
-import glob
 import os
+import sys
+import librosa
+import matplotlib.pyplot as plt
+import numpy as np
+import tkinter
+import tkinter as tk
 
-import torch
-import torchaudio
 
 
-russian_path = "data/russian_data"
-temp_path = "temp"
-output_path = "data/spectogram_russian_data"
+if __name__ == "__main__":
+    arg1 = sys.argv[1]
+    all_languages = ['russian', 'arabic', 'english', 'french', 'spanish']
+    if arg1 == "all":
+        # Process all languages
+        for language in all_languages:
+            print("Processing language:", language)
+            sys.argv[1] = language
+            os.system("python3 data_process/wav_to_spectrogram.py " + language)
+        exit(0)
 
-torch.random.manual_seed(0)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
-model = bundle.get_model().to(device)
+    if arg1 not in all_languages:
+        print("Bad language")
+        exit(1)
 
-i = 0
+    language_path = "data/" + arg1 + "_data"
+    output_path = "data/spectrogram_" + arg1 + "_data"
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+    if not os.path.exists(output_path + "/W"):
+        os.makedirs(output_path + "/W")
+    if not os.path.exists(output_path + "/M"):
+        os.makedirs(output_path + "/M")
 
-female_folder = glob.glob(os.path.join(russian_path, 'female_russian'))[0]
-wav_files = glob.glob(os.path.join(female_folder, '*.mp3'))
-for wav_file in wav_files:
-  i += 1
-  # if i == 5: # REMOVE TO PROCESS ALL DATA
-    # break
-  print("proccessing..", wav_file, i)
-  sound = AudioSegment.from_mp3(wav_file)
-  sound.export(temp_path+"/temp.wav", format="wav")
+    i = 0
+    print("before female")
+    female_folder = os.path.join(language_path, "female_" + arg1)
+    wav_files = [file for file in os.listdir(female_folder) if file.endswith('.mp3')]
+    for wav_file in wav_files:
+        i += 1
+        # if i == 5:  # REMOVE TO PROCESS ALL DATA
+        #     break
+        print("Processing:", wav_file, i)
+        audio_path = os.path.join(female_folder, wav_file)
+        y, sr = librosa.load(audio_path)  # Load audio file
+        spectrogram = librosa.feature.melspectrogram(y=y, sr=sr)  # Compute spectrogram
 
-  sample_rate, samples = wavfile.read(temp_path+"/temp.wav")
-  frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate)
+        plt.figure(figsize=(10, 4))
+        librosa.display.specshow(librosa.power_to_db(spectrogram, ref=np.max), y_axis='mel', x_axis='time')
+        plt.colorbar(format='%+2.0f dB')
+        plt.title('Spectrogram')
+        plt.tight_layout()
 
-  plt.pcolormesh(times, frequencies, spectrogram)
-  plt.ylabel('Frequency [Hz]')
-  plt.xlabel('Time [sec]')
-  plt.savefig(output_path+"/W/"+str(i)+'.png')
+        plt.savefig(output_path + "/W/" + str(i) + '.png')
+        plt.close()
 
-male_folder = glob.glob(os.path.join(russian_path, 'male_russian'))[0]
-wav_files = glob.glob(os.path.join(male_folder, '*.mp3'))
-for wav_file in wav_files:
-  i += 1
-  # if i == 10:  # REMOVE TO PROCESS ALL DATA
-    # break
-  print("proccessing..", wav_file, i)
-  sound = AudioSegment.from_mp3(wav_file)
-  sound.export(temp_path+"/temp.wav", format="wav")
+    # Repeat the process for the male folder
 
-  sample_rate, samples = wavfile.read(temp_path+"/temp.wav")
-  frequencies, times, spectrogram = signal.spectrogram(samples, sample_rate)
+    male_folder = os.path.join(language_path, "male_" + arg1)
+    wav_files = [file for file in os.listdir(male_folder) if file.endswith('.mp3')]
+    for wav_file in wav_files:
+        i += 1
+        # if i == 10:  # REMOVE TO PROCESS ALL DATA
+        #     break
+        print("Processing:", wav_file, i)
+        audio_path = os.path.join(male_folder, wav_file)
+        y, sr = librosa.load(audio_path)  # Load audio file
+        spectrogram = librosa.feature.melspectrogram(y=y, sr=sr)  # Compute spectrogram
 
-  plt.ylim([0, 8000])  # set y-axis limits to show only relevant frequencies
-  plt.pcolormesh(times, frequencies, spectrogram)
-  plt.ylabel('Frequency [Hz]')
-  plt.xlabel('Time [sec]')
-  plt.ylim([0, 8000])  # set y-axis limits to show only relevant frequencies
-  plt.savefig(output_path+"/M/"+str(i)+'.png')
+        plt.figure(figsize=(10, 4))
+        librosa.display.specshow(librosa.power_to_db(spectrogram, ref=np.max), y_axis='mel', x_axis='time')
+        plt.colorbar(format='%+2.0f dB')
+        plt.title('Spectrogram')
+        plt.tight_layout()
+
+        plt.savefig(output_path + "/M/" + str(i) + '.png')
+        plt.close
