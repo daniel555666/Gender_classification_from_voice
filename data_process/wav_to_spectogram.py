@@ -6,6 +6,32 @@ import numpy as np
 import tkinter
 import tkinter as tk
 
+if __name__ == "__main__":
+  arg1 = sys.argv[1]
+  all_languages = ['russian', 'arabic', 'english', 'french', 'spanish']
+  if arg1 == "all":
+    for language in all_languages:
+      print("processing language:", language)
+      sys.argv[1] = language
+      os.system("python3 data_process/wav_to_spectogram.py "+language)
+    exit(0)
+  if arg1 not in all_languages:
+    print("bad language")
+    exit(1)
+  language_path = "data/"+arg1+"_data"
+  temp_path = "temp"
+  output_path = "data/spectogram_"+arg1+"_data"
+  if not os.path.exists(output_path):
+    os.makedirs(output_path)
+  if not os.path.exists(output_path+"/W"):
+    os.makedirs(output_path+"/W")
+  if not os.path.exists(output_path+"/M"):
+    os.makedirs(output_path+"/M")
+  torch.random.manual_seed(0)
+  device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+  print("device", device)
+  bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
+  model = bundle.get_model().to(device)
 
 
 if __name__ == "__main__":
