@@ -103,6 +103,7 @@ if __name__ == "__main__":
     model_path ="model.all.pt"  
     model.load_state_dict(torch.load(model_path, map_location=device))
     model = model.to(device)
+    size = 29,449
     i = 0
     wav_files = glob.glob(os.path.join("input", '*.mp3')) 
     for wav_file in wav_files:
@@ -120,11 +121,22 @@ if __name__ == "__main__":
             # out_file = open(temp_path+"/temp_input_json_file.json", "w")
             # json.dump(emission.tolist(), out_file)
             # json.dump([element.tolist() for element in features], out_file)
+            import torch
 
-            output = model(emission)
-            print(output)
-            gender = "male" if output_values[0][0] > output_values[0][1] else "female"
-            print(gender, str(i))
+
+            images = []
+            temp_np_array = np.array(emission)
+            temp = [cv2.resize(temp_np_array[0], size)]
+            temp_img = np.array(temp)
+            images.append(temp_img)
+
+            images_tensor = torch.tensor(images, dtype=torch.float32).to(device)  # Convert to tensor and move to the appropriate device
+            output_values = model(images_tensor)
+            print(output_values)
+            # ... (remaining code)
+
+
+
 
 
         # # Use the model to predict output values

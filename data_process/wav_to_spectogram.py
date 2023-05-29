@@ -6,11 +6,15 @@ import numpy as np
 import tkinter
 import tkinter as tk
 
+from pydub import AudioSegment # to convert mp3
+
+
 
 
 if __name__ == "__main__":
     arg1 = sys.argv[1]
     all_languages = ['russian', 'arabic', 'english', 'french', 'spanish']
+
     if arg1 == "all":
         # Process all languages
         for language in all_languages:
@@ -37,10 +41,12 @@ if __name__ == "__main__":
     female_folder = os.path.join(language_path, "female_" + arg1)
     wav_files = [file for file in os.listdir(female_folder) if file.endswith('.mp3')]
     for wav_file in wav_files:
-        i += 1
+        i += 1€
         # if i == 5:  # REMOVE TO PROCESS ALL DATA
         #     break
         print("Processing:", wav_file, i)
+        sound = AudioSegment.from_mp3(wav_file)
+        sound.export(temp_path+"/"+arg1+"_temp_emmision_to_json.wav", format="wav")
         audio_path = os.path.join(female_folder, wav_file)
         y, sr = librosa.load(audio_path)  # Load audio file
         spectrogram = librosa.feature.melspectrogram(y=y, sr=sr)  # Compute spectrogram
