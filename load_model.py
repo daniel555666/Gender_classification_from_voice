@@ -21,7 +21,7 @@ if __name__ == "__main__":
     bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
     wav2vec = bundle.get_model().to(device)
 
-    # Assemble the model
+    # Assemble the model TODO
     with tf.device('/CPU:0'):
         model = keras.models.Sequential()
         model.add(layers.Conv2D(8,(5,5), strides=(1,1), padding="valid", activation='relu', input_shape=(64,448,3)))
@@ -34,15 +34,15 @@ if __name__ == "__main__":
         model.add(layers.Dense(100, activation='relu'))
         model.add(layers.Dense(2, activation='softmax'))
 
-    model.load_weights('model.h5')
+    model.load_weights('model.h5') # TODO name of model
     i = 0
-    wav_files = glob.glob(os.path.join("input", '*.wav'))
+    wav_files = glob.glob(os.path.join("input", '*.wav')) # TODO mp3? 
     for wav_file in wav_files:
         i += 1
         print("Processing:", wav_file, i)
 
         # Load the WAV file, cut the first 3 seconds and save
-        waveform, sample_rate = torchaudio.load(wav_file)
+        waveform, sample_rate = torchaudio.load(wav_file) 
         num_samples = int(3 * sample_rate)
         waveform = waveform[:, :num_samples]
         audio_np = waveform.numpy()[0]
