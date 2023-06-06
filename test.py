@@ -9,8 +9,13 @@ from pydub import AudioSegment # to convert mp3
 
 import glob
 import json
+import sys
 
 from torch import nn
+import torch
+
+import matplotlib.pyplot as plt
+
 
 # The model
 
@@ -21,9 +26,12 @@ class Convolutional_Speaker_Identification(nn.Module):
     def cal_paddind_shape(self, new_shape, old_shape, kernel_size, stride_size):
         return (stride_size * (new_shape - 1) + kernel_size - old_shape) / 2
 
-    def __init__(self):
+    def __init__(self, is_spec=False):
         super().__init__()
-        self.conv_2d_1 = nn.Conv2d(1, 96, kernel_size=(7, 7), stride=(2, 2), padding=2)
+        if is_spec:
+            self.conv_2d_1 = nn.Conv2d(3, 96, kernel_size=(7, 7), stride=(2, 2), padding=2) # spectrogram
+        else:
+            self.conv_2d_1 = nn.Conv2d(1, 96, kernel_size=(7, 7), stride=(2, 2), padding=2) # emission
         self.bn_1 = nn.BatchNorm2d(96)
         self.max_pool_2d_1 = nn.MaxPool2d(kernel_size=(3, 3), stride=(2, 2))
 
@@ -41,7 +49,10 @@ class Convolutional_Speaker_Identification(nn.Module):
         self.bn_5 = nn.BatchNorm2d(256)
         self.max_pool_2d_3 = nn.MaxPool2d(kernel_size=(5, 3), stride=(3, 2))
 
-        self.conv_2d_6 = nn.Conv2d(256, 4096, kernel_size=(9, 1), padding=0)
+        if is_spec:
+            self.conv_2d_6 = nn.Conv2d(256, 4096, kernel_size=(9, 1), padding=2) # spectrogram
+        else:
+            self.conv_2d_6 = nn.Conv2d(256, 4096, kernel_size=(9, 1), padding=0) # emission
         self.drop_1 = nn.Dropout(p=DROP_OUT)
 
         self.global_avg_pooling_2d = nn.AdaptiveAvgPool2d((1, 1))
@@ -82,6 +93,27 @@ class Convolutional_Speaker_Identification(nn.Module):
 
         return y
 
+def record():
+    import sounddevice as sd
+    from scipy.io.wavfile import write
+    import os
+
+    # set the sampling rate and duration
+    fs = 44100  # Sample rate 
+    seconds = 3  # Duration of recording
+
+    print("Recording...")
+    myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=1)
+    sd.wait()  # Wait until recording is finished
+    print("Recording finished")
+
+    # specify the output file name
+    output_file = "input/output.wav"
+
+    # Save as WAV file 
+    write(output_file, fs, myrecording)
+
+    print(f"Saved to {os.path.abspath(output_file)}") 
 
 if __name__ == "__main__":
     # create directories
@@ -91,6 +123,9 @@ if __name__ == "__main__":
         os.makedirs("output")
     if not os.path.exists("input"):
         os.makedirs("input")
+
+    if len(sys.argv) > 1:
+        record()
     temp_path = "temp"
 
     # Assemble the wav2vec model
@@ -99,53 +134,95 @@ if __name__ == "__main__":
     bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
     wav2vecModel = bundle.get_model().to(device)
 
-    model = Convolutional_Speaker_Identification()
-    model_path ="model.all.pt"  
+    # model_path = "model_spanish3_spec.pt"
+    model_path = "model_spec_all.pt"
+    # model_path = "model_emission_all.pt"
+    # model_path = "model_spec_arabic.pt"
+    model = Convolutional_Speaker_Identification(is_spec=("spec" in model_path))
+
     model.load_state_dict(torch.load(model_path, map_location=device))
     model = model.to(device)
+    model.eval()
+
     size = 29,449
     i = 0
-    wav_files = glob.glob(os.path.join("input", '*.mp3')) 
+    wav_files = glob.glob(os.path.join("input", '*')) 
     for wav_file in wav_files:
         i += 1
         print("Processing:", wav_file, i)
-        sound = AudioSegment.from_mp3(wav_file)
-        sound.export(temp_path+"/temp_input_file.wav", format="wav")
+        if wav_file.endswith(".mp3"):
+            sound = AudioSegment.from_mp3(wav_file)
+            sound.export(temp_path+"/temp_input_file.wav", format="wav")
+        elif wav_file.endswith(".wav"):
+            sound = AudioSegment.from_wav(wav_file)
+            sound.export(temp_path+"/temp_input_file.wav", format="wav")
         
-        waveform, sample_rate = torchaudio.load(temp_path+"/temp_input_file.wav")
-        waveform = waveform.to(device)
 
-        with torch.inference_mode():
-            emission, _ = wav2vecModel(waveform)
-            # features, _ = model.extract_features(waveform)
-            # out_file = open(temp_path+"/temp_input_json_file.json", "w")
-            # json.dump(emission.tolist(), out_file)
-            # json.dump([element.tolist() for element in features], out_file)
-            import torch
+        if "spec" in model_path:
+            import pickle
+            y, sr = librosa.load(wav_file)  # Load audio file
+            spectrogram = librosa.feature.melspectrogram(y=y, sr=sr)  # Compute spectrogram
 
+            plt.clf()
+            librosa.display.specshow(librosa.power_to_db(spectrogram, ref=np.max), y_axis='mel', x_axis='time')
+            plt.colorbar(format='%+2.0f dB')
+            plt.title('Spectrogram')
+            plt.tight_layout()
+
+            plt.savefig(temp_path+"/temp_input_file.png")
+            plt.close()
+
+            temp_img = cv2.imread(temp_path+"/temp_input_file.png")
+            size = 320,240
+
+            temp_img = cv2.resize(temp_img, size)
+            temp_img=np.transpose(temp_img)
 
             images = []
-            temp_np_array = np.array(emission)
-            temp = [cv2.resize(temp_np_array[0], size)]
-            temp_img = np.array(temp)
             images.append(temp_img)
+            images = np.array(images)
+            images_tensor = torch.tensor(images, dtype=torch.float).to(device)  # Convert to tensor and move to the appropriate device
 
-            images_tensor = torch.tensor(images, dtype=torch.float32).to(device)  # Convert to tensor and move to the appropriate device
             output_values = model(images_tensor)
+
+
+
+            # for i in images:
+            #     with open(temp_path+"/temp_pkl_file.pkl", "wb") as f:
+            #         pickle.dump((i,i), f)
+            
+            # with open(temp_path+"/temp_pkl_file.pkl", "rb") as f:
+            #     images, _ = pickle.load(f)
+            #     data_x = torch.tensor(images, dtype=torch.float32).to(device)  # Convert to tensor and move to the appropriate device
+            #     _ = torch.tensor(_, dtype=torch.long).to(device)  # Convert to tensor and move to the appropriate device
+            #     dataset = torch.utils.data.TensorDataset(data_x, _)
+            #     test_loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False)
+            
+            # for images, _ in test_loader:
+            #     images = images.to(torch.float)
+                # data_x = data_x.unsqueeze(3)
+                # data_x = data_x.to(torch.float)
+            # images_tensor = torch.tensor(images[0], dtype=torch.float).to(device)  # Convert to tensor and move to the appropriate device
+            # # images = images.to(torch.float) 
+            # output_values = model(images_tensor)
             print(output_values)
-            # ... (remaining code)
+        else:
+            with torch.inference_mode():
+                waveform, sample_rate = torchaudio.load(temp_path+"/temp_input_file.wav")
+                waveform = waveform.to(device)
+                emission, _ = wav2vecModel(waveform)
+
+                images = []
+                temp_np_array = np.array(emission)
+                temp = [cv2.resize(temp_np_array[0], size)]
+                temp_img = np.array(temp)
+                images.append(temp_img)
+
+                images_tensor = torch.tensor(images, dtype=torch.float32).to(device)  # Convert to tensor and move to the appropriate device
+                output_values = model(images_tensor)
+                print(output_values)
 
 
-
-
-
-        # # Use the model to predict output values
-        # input_tensor = images
-        # output_values = model.predict(input_tensor)
-        
-        # print("output values" , output_values)
-        # # use one line trinary operator to print male or female
-        # # TODO double check if the indexs are correct
         gender = "male" if output_values[0][0] > output_values[0][1] else "female"
         print(gender, str(i))
     # Remove all files in the temp folder
