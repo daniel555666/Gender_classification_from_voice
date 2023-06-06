@@ -3,12 +3,8 @@ import sys
 import librosa
 import matplotlib.pyplot as plt
 import numpy as np
-import tkinter
-import tkinter as tk
 
 from pydub import AudioSegment # to convert mp3
-
-
 
 
 if __name__ == "__main__":
@@ -28,6 +24,7 @@ if __name__ == "__main__":
         exit(1)
 
     language_path = "data/" + arg1 + "_data"
+    temp_path = "temp"
     output_path = "data/spectrogram_" + arg1 + "_data"
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -41,7 +38,7 @@ if __name__ == "__main__":
     female_folder = os.path.join(language_path, "female_" + arg1)
     wav_files = [file for file in os.listdir(female_folder) if file.endswith('.mp3')]
     for wav_file in wav_files:
-        i += 1€
+        i += 1
         # if i == 5:  # REMOVE TO PROCESS ALL DATA
         #     break
         print("Processing:", wav_file, i)
@@ -51,7 +48,7 @@ if __name__ == "__main__":
         y, sr = librosa.load(audio_path)  # Load audio file
         spectrogram = librosa.feature.melspectrogram(y=y, sr=sr)  # Compute spectrogram
 
-        plt.figure(figsize=(10, 4))
+        plt.clf()
         librosa.display.specshow(librosa.power_to_db(spectrogram, ref=np.max), y_axis='mel', x_axis='time')
         plt.colorbar(format='%+2.0f dB')
         plt.title('Spectrogram')
@@ -73,7 +70,7 @@ if __name__ == "__main__":
         y, sr = librosa.load(audio_path)  # Load audio file
         spectrogram = librosa.feature.melspectrogram(y=y, sr=sr)  # Compute spectrogram
 
-        plt.figure(figsize=(10, 4))
+        plt.clf()
         librosa.display.specshow(librosa.power_to_db(spectrogram, ref=np.max), y_axis='mel', x_axis='time')
         plt.colorbar(format='%+2.0f dB')
         plt.title('Spectrogram')
