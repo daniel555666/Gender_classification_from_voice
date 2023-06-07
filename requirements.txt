@@ -8,3 +8,4 @@ matplotlib
 cv2
 tensorflow
 keras
+sounddevice
