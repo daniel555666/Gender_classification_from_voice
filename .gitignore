@@ -3,3 +3,4 @@ input/
 input_cut/
 output/
 temp/
+model_*
